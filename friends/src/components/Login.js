@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import axios from 'axios'
+import { axiosWithAuth } from "../utils/axiosWithAuth";
+import { useHistory } from "react-router-dom";
 
 export const Login = () => {
   const [creds, setCreds] = useState({
@@ -7,21 +8,29 @@ export const Login = () => {
     password: "",
   });
 
- const handleChanges = (e) => {
+  const handleChanges = (e) => {
     setCreds({
       ...creds,
       [e.target.name]: e.target.value,
     });
   };
 
- const submit = (e) => {
+  
+  let history = useHistory()
+  const login = (e) => {
     e.preventDefault();
-    
+    axiosWithAuth()
+      .post("/api/login", creds)
+      .then((res) => {
+        console.log(res)
+        localStorage.setItem("token", res.data.payload);
+        history.push('/Friends')
+      });
   };
 
   return (
     <div className="logins">
-      <form> 
+      <form onSubmit={login}>
         <input
           type="text"
           placeholder="username"
@@ -40,10 +49,8 @@ export const Login = () => {
           value={creds.password}
           onChange={handleChanges}
         />
-
+        <button>submit</button>
       </form>
     </div>
   );
 };
-
-
